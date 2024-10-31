@@ -4,6 +4,21 @@ import pandas as pd
 
 # Data Loading
 
+
+def load_sav_data(file_path):
+    """
+    Load a file into a DataFrame.
+
+    Parameters:
+    file_path (str): The path to the file to load.
+
+    Returns:
+    pd.DataFrame: The loaded DataFrame.
+    """
+    data = pd.read_spss(file_path)
+    return data
+
+
 # Data Cleaning
 
 
