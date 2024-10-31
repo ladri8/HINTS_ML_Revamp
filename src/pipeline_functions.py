@@ -7,7 +7,7 @@ import pandas as pd
 
 def load_sav_data(file_path):
     """
-    Load a file into a DataFrame.
+    Load a file into a DataFrame
 
     Parameters:
     file_path (str): The path to the file to load.
