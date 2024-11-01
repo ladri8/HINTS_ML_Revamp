@@ -4,6 +4,8 @@ import pandas as pd
 
 # Data Loading
 
+num_features = ["Age", "BMI"]
+
 
 def load_sav_data(file_path):
     """
@@ -75,3 +77,41 @@ def get_missing_values(df):
     ).sort_values(by="Percentage", ascending=False)
     return missing_results_df
 
+
+def separate_features(df, num_features):
+    """
+    Separates the features of a dataframe into numerical and categorical features.
+
+    Parameters:
+    df (pd.DataFrame): The dataframe containing the features.
+    num_features (list): List of numerical feature names.
+
+    Returns:
+    tuple: A tuple containing two lists - numerical features and categorical features.
+    """
+    all_features = df.columns
+    cat_features = [feature for feature in all_features if feature not in num_features]
+    return num_features, cat_features
+
+
+def convert_feature_types(df, num_features, cat_features):
+    """
+    Converts the data types of features in a dataframe.
+
+    Parameters:
+    df (pd.DataFrame): The dataframe containing the features.
+    num_features (list): List of numerical feature names.
+    cat_features (list): List of categorical feature names.
+
+    Returns:
+    pd.DataFrame: The dataframe with updated feature types.
+    """
+    # Convert categorical features to 'category' dtype
+    for c in cat_features:
+        df[c] = df[c].astype("category")
+
+    # Convert numerical features to numeric dtype
+    for num_feature in num_features:
+        df[num_feature] = pd.to_numeric(df[num_feature], errors="coerce")
+
+    return df.dtypes
