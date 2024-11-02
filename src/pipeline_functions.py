@@ -115,3 +115,24 @@ def convert_feature_types(df, num_features, cat_features):
         df[num_feature] = pd.to_numeric(df[num_feature], errors="coerce")
 
     return df.dtypes
+
+
+def rename_columns(df, old_names, new_names):
+    """
+    Renames columns in df.
+
+    Parameters:
+    df (pandas.DataFrame): The df whose columns are to be renamed.
+    old_names (list of str): The current names of the columns to be renamed.
+    new_names (list of str): The new names for the columns.
+
+    Returns:
+    pandas.DataFrame: The df with renamed columns.
+
+    Example:
+    old_names = ['TypeOfAddressC_Selected', 'CellPhone_Yes', 'MedConditions_Diabetes_Yes', ...]
+    new_names = ['TypeOfAddressC', 'CellPhone', 'Diabetes', ...]
+    """
+    name_dict = dict(zip(old_names, new_names))
+    df.rename(columns=name_dict, inplace=True)
+    return df
