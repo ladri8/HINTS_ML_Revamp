@@ -1,6 +1,7 @@
 # functions.py
 import numpy as np
 import pandas as pd
+import os
 
 # Data Loading
 
@@ -19,6 +20,26 @@ def load_sav_data(file_path):
     """
     data = pd.read_spss(file_path)
     return data
+
+
+def save_in_processed_dir(df, base_dir, file_name="processed_data.csv"):
+    """
+    Save the given dataframe to the 'processed' directory within the specified base directory.
+
+    Parameters:
+    df (pandas.DataFrame): The dataframe to be saved.
+    base_dir (str): The base directory where the 'processed' directory is located.
+    file_name (str): The name of the file to save the dataframe as.
+
+    Returns:
+    None
+    """
+    # Ensure the directory exists
+    processed_dir = os.path.join(base_dir, "data", "processed")
+    os.makedirs(processed_dir, exist_ok=True)
+
+    # Save the dataframe
+    df.to_csv(os.path.join(processed_dir, file_name), index=False)
 
 
 # Data Cleaning
@@ -135,4 +156,138 @@ def rename_columns(df, old_names, new_names):
     """
     name_dict = dict(zip(old_names, new_names))
     df.rename(columns=name_dict, inplace=True)
+    return df
+
+
+def create_dummy_variables(data):
+    """
+    Create dummy variables for specified columns in the dataframe.
+
+    Parameters:
+    data (pd.DataFrame): The input dataframe containing the columns to be converted into dummy variables.
+
+    Returns:
+    pd.DataFrame: A dataframe with dummy variables for the specified columns.
+    """
+    dummy_columns = [
+        "TypeOfAddressC",
+        "CellPhone",
+        "MedConditions_Diabetes",
+        "MedConditions_HighBP",
+        "MedConditions_HeartCondition",
+        "MedConditions_LungDisease",
+        "MedConditions_Arthritis",
+        "MedConditions_Depression",
+        "EverHadCancer",
+        "EmotionalSupport",
+        "RegularProvider",
+        "HealthInsurance",
+        "Deaf",
+        "Blind",
+        "Race_Cat2",
+        "Hisp_Cat",
+        "BornInUSA",
+        "GenderC",
+    ]
+
+    DummyVar = pd.get_dummies(data[dummy_columns], drop_first=True)
+    return DummyVar
+
+
+def concatenate_dummies_drop_cols(original_df, dummy_df):
+    """
+    Concatenate the original dataframe with the dummy variables dataframe and drop specified columns.
+
+    Parameters:
+    original_df (pd.DataFrame): The original dataframe.
+    dummy_df (pd.DataFrame): The dataframe containing dummy variables.
+
+    Returns:
+    pd.DataFrame: The concatenated dataframe with specified columns dropped.
+    """
+    columns_to_drop = [
+        "TypeOfAddressC",
+        "CellPhone",
+        "MedConditions_Diabetes",
+        "MedConditions_HighBP",
+        "MedConditions_HeartCondition",
+        "MedConditions_LungDisease",
+        "MedConditions_Arthritis",
+        "MedConditions_Depression",
+        "EverHadCancer",
+        "EmotionalSupport",
+        "RegularProvider",
+        "HealthInsurance",
+        "Deaf",
+        "Blind",
+        "Race_Cat2",
+        "Hisp_Cat",
+        "BornInUSA",
+        "GenderC",
+    ]
+
+    df = pd.concat([original_df, dummy_df], axis=1).drop(columns_to_drop, axis=1)
+    return df
+
+
+def create_asian_column(df):
+    """
+    Create a new column 'Asian' in the dataframe based on specific conditions.
+
+    Parameters:
+    df (pd.DataFrame): The input dataframe containing the columns to be evaluated.
+
+    Returns:
+    pd.DataFrame: The dataframe with the new 'Asian' column added.
+    """
+    df["Asian"] = np.where(
+        (df["Chinese"] == 1)
+        | (df["Asian Indian"] == 1)
+        | (df["Filipino"] == 1)
+        | (df["Japanese"] == 1)
+        | (df["Korean"] == 1)
+        | (df["OtherAsian"] == 1)
+        | (df["Vietnamese"] == 1),
+        1,
+        0,
+    )
+    df["Asian"] = df["Asian"].astype(int)
+    return df
+
+
+def create_pacific_islander_column(df):
+    """
+    Create a new column 'Pacific_Islander' in the dataframe based on specific conditions.
+
+    Parameters:
+    df (pd.DataFrame): The input dataframe containing the columns to be evaluated.
+
+    Returns:
+    pd.DataFrame: The dataframe with the new 'Pacific_Islander' column added.
+    """
+    df["Pacific_Islander"] = np.where(
+        (df["Samoan"] == 1) | (df["OtherPacificIslander"] == 1), 1, 0
+    )
+    df["Pacific_Islander"] = df["Pacific_Islander"].astype(int)
+    return df
+
+
+def create_fatalview_column(df):
+    """
+    Create a new column 'fatalview' in the dataframe based on specific conditions.
+
+    Parameters:
+    df (pd.DataFrame): The input dataframe containing the columns to be evaluated.
+
+    Returns:
+    pd.DataFrame: The dataframe with the new 'fatalview' column added.
+    """
+    df["fatalview"] = np.where(
+        (df["EverythingCauseCancer"] == 2)
+        | (df["EverythingCauseCancer"] == 3)
+        | (df["PreventNotPossible"] == 2)
+        | (df["PreventNotPossible"] == 3),
+        1,
+        0,
+    )
     return df
