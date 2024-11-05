@@ -2,6 +2,13 @@
 import numpy as np
 import pandas as pd
 import os
+from sklearn.pipeline import Pipeline
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import f1_score
+import mlflow
+import mlflow.sklearn
 
 # Data Loading
 
@@ -291,3 +298,25 @@ def create_fatalview_column(df):
         0,
     )
     return df
+
+
+def create_pipeline(with_imputation=True):
+    if with_imputation:
+        numeric_transformer = Pipeline(
+            steps=[("imputer", SimpleImputer(strategy="median"))]
+        )
+        categorical_transformer = Pipeline(
+            steps=[("imputer", SimpleImputer(strategy="most_frequent"))]
+        )
+    else:
+        numeric_transformer = Pipeline(steps=[])
+        categorical_transformer = Pipeline(steps=[])
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("num", numeric_transformer, num_features),
+            ("cat", categorical_transformer, cat_features),
+        ]
+    )
+
+    return preprocessor
