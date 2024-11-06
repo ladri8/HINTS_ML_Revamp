@@ -300,6 +300,52 @@ def create_fatalview_column(df):
     return df
 
 
+def identify_outliers_iqr(df, column):
+    """
+    Identify the lower and upper bounds for outliers in a DataFrame column using the IQR method.
+
+    Parameters:
+    df (pandas.DataFrame): The DataFrame containing the data.
+    column (str): The name of the column for which to identify outliers.
+
+    Returns:
+    tuple: A tuple containing the lower bound and upper bound for outliers.
+    """
+    Q1 = df[column].quantile(0.25)
+    Q3 = df[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    return lower_bound, upper_bound
+
+
+def impute_outliers_with_median(X, columns):
+    """
+    Impute outliers in specified columns of a DataFrame with the median value of the respective column.
+
+    Parameters:
+    X (pd.DataFrame): The input DataFrame containing the data.
+    columns (list of str): List of column names in which to impute outliers.
+
+    Returns:
+    pd.DataFrame: A new DataFrame with outliers imputed with the median value in the specified columns.
+
+    Notes:
+    This function uses the IQR method to identify outliers. It assumes the existence of a function
+    `identify_outliers_iqr` that returns the lower and upper bounds for outliers in a given column.
+    """
+    X = X.copy()
+    for column in columns:
+        if column not in X.columns:
+            raise ValueError(f"Column '{column}' not found in DataFrame")
+        lower_bound, upper_bound = identify_outliers_iqr(X, column)
+        median_value = X[column].median()
+        X[column] = X[column].apply(
+            lambda x: median_value if x < lower_bound or x > upper_bound else x
+        )
+    return X
+
+
 def create_pipeline(with_imputation=True):
     if with_imputation:
         numeric_transformer = Pipeline(
